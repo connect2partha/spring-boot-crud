@@ -6,11 +6,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-# IDE - IntelliJ IDEA
-.idea/
-*.iws
-*.iml
-*.ipr
+
 
 # IDE - Eclipse
 .classpath
@@ -36,5 +32,3 @@ logs/
 # Spring Boot
 spring-shell.log
 
-# Claude Code
-.claude/
