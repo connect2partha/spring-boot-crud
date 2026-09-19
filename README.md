@@ -41,6 +41,8 @@ The server starts on **http://localhost:8080**.
 
 ## Test
 
+### Unit & Integration Tests (Maven)
+
 Run all tests:
 ```bash
 mvn test
@@ -50,6 +52,52 @@ Run only the controller integration tests:
 ```bash
 mvn test -Dtest=ProductControllerTest
 ```
+
+### Robot Framework API Tests
+
+**Prerequisites**
+
+| Tool | Version |
+|------|---------|
+| Python | 3.8+ |
+
+Install dependencies:
+```bash
+pip install -r tests/requirements.txt
+```
+
+**Steps**
+
+1. Start the application (see [Run](#run) above).
+2. Run the test suite:
+
+```bash
+robot --outputdir tests/results tests/product_api.robot
+```
+
+> **Windows note:** If you see a `LookupError: unknown encoding` error, prefix the command with `PYTHONUTF8=1` (Linux/macOS) or set `$env:PYTHONUTF8 = "1"` in PowerShell before running.
+
+**Results**
+
+After the run, open the HTML report in your browser:
+
+```
+tests/results/report.html   # pass/fail summary
+tests/results/log.html      # full execution log with request/response detail
+```
+
+**Test cases**
+
+| Test | Description |
+|------|-------------|
+| Create Product | `POST /api/products` returns 201 |
+| Get All Products | `GET /api/products` returns 200 with list |
+| Get Product By ID | `GET /api/products/{id}` returns 200 |
+| Update Product | `PUT /api/products/{id}` returns 200 |
+| Get Product Not Found | `GET /api/products/99999` returns 404 |
+| Create Product Validation Failure | `POST` with missing fields returns 400 |
+| Delete Product | `DELETE /api/products/{id}` returns 204 |
+| Verify Product Deleted | `GET` after delete returns 404 |
 
 ---
 

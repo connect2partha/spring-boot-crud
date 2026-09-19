@@ -1,29 +1,5 @@
-# Compiled output
-target/
-
 # Maven
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
-
-# IDE - IntelliJ IDEA
-.idea/
-*.iws
-*.iml
-*.ipr
-
-# IDE - Eclipse
-.classpath
-.project
-.settings/
-bin/
-
-# IDE - VS Code
-.vscode/
-
-# OS
-.DS_Store
-Thumbs.db
+target/
 
 # Logs
 *.log
@@ -31,10 +7,15 @@ logs/
 
 # Environment / secrets
 .env
-*.env.local
 
-# Spring Boot
-spring-shell.log
+# IDE - VS Code
+.vscode/
+
+# OS - Windows
+Thumbs.db
+
+# Robot Framework
+tests/results/
 
 # Claude Code
 .claude/
