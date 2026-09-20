@@ -8,7 +8,7 @@ A simple product catalog REST API built with Spring Boot 4, Spring Data JPA, and
 
 | Tool | Version |
 |------|---------|
-| Java | 26+ |
+| Java | 21+ |
 | Maven | 3.9+ |
 
 ---

@@ -1,4 +1,4 @@
-package com.example.crud.entity;
+package edu.codelounge.apps.entity;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;

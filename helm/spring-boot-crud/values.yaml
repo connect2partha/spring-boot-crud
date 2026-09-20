@@ -1,0 +1,14 @@
+replicaCount: 1
+
+image:
+  repository: spring-boot-crud
+  tag: latest
+  pullPolicy: Never
+
+service:
+  type: NodePort
+  port: 8080
+  targetPort: 8080
+  nodePort: 30080
+
+resources: {}

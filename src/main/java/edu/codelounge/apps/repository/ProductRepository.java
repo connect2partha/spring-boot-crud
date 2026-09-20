@@ -1,6 +1,6 @@
-package com.example.crud.repository;
+package edu.codelounge.apps.repository;
 
-import com.example.crud.entity.Product;
+import edu.codelounge.apps.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,4 @@
-package com.example.crud.exception;
+package edu.codelounge.apps.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

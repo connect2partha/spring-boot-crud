@@ -1,0 +1,3 @@
+The application is available at:
+
+  http://localhost:{{ .Values.service.nodePort }}
