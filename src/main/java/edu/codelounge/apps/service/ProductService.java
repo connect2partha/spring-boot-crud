@@ -1,6 +1,6 @@
-package com.example.crud.service;
+package edu.codelounge.apps.service;
 
-import com.example.crud.entity.Product;
+import edu.codelounge.apps.entity.Product;
 
 import java.util.List;
 

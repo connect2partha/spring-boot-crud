@@ -1,7 +1,7 @@
-package com.example.crud.controller;
+package edu.codelounge.apps.controller;
 
-import com.example.crud.entity.Product;
-import com.example.crud.service.ProductService;
+import edu.codelounge.apps.entity.Product;
+import edu.codelounge.apps.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

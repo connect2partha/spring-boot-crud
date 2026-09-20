@@ -1,7 +1,7 @@
-package com.example.crud;
+package edu.codelounge.apps;
 
-import com.example.crud.entity.Product;
-import com.example.crud.service.ProductService;
+import edu.codelounge.apps.entity.Product;
+import edu.codelounge.apps.service.ProductService;
 import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

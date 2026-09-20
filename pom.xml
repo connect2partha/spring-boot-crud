@@ -18,7 +18,7 @@
     <description>Spring Boot 4 CRUD REST API Demo</description>
 
     <properties>
-        <java.version>26</java.version>
+        <java.version>21</java.version>
     </properties>
 
     <dependencies>

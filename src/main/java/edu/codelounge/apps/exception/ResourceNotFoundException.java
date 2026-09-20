@@ -1,4 +1,4 @@
-package com.example.crud.exception;
+package edu.codelounge.apps.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
 

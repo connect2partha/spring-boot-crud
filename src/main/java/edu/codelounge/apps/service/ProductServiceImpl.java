@@ -1,8 +1,8 @@
-package com.example.crud.service;
+package edu.codelounge.apps.service;
 
-import com.example.crud.entity.Product;
-import com.example.crud.exception.ResourceNotFoundException;
-import com.example.crud.repository.ProductRepository;
+import edu.codelounge.apps.entity.Product;
+import edu.codelounge.apps.exception.ResourceNotFoundException;
+import edu.codelounge.apps.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

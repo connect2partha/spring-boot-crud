@@ -1,4 +1,4 @@
-FROM eclipse-temurin:26-jre
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY target/spring-boot-crud-1.0.0.jar app.jar
 EXPOSE 8080
