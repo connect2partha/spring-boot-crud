@@ -31,7 +31,9 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Build and test
-        run: mvn clean verify
+        env:
+          APP_VERSION: 1.0.${{ github.run_number }}
+        run: mvn -Drevision="${APP_VERSION}" clean verify
 
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v5

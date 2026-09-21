@@ -22,7 +22,9 @@ A simple product catalog REST API built with Spring Boot 4, Spring Data JPA, and
 mvn clean package
 ```
 
-The compiled JAR is written to `target/spring-boot-crud-1.0.0.jar`.
+The compiled JAR is written to `target/spring-boot-crud-1.0.0.jar` by default.
+CI overrides the Maven revision with `1.0.<GitHub Actions run number>`, so each
+CI build produces a uniquely versioned JAR.
 
 ---
 
@@ -206,7 +208,7 @@ mvn clean package
 docker build -t spring-boot-crud:latest .
 ```
 
-Docker Desktop Kubernetes uses a separate containerd image store. If the pod reports `ErrImageNeverPull`, import the image into the Kubernetes worker runtime or configure a registry reachable from the cluster before deploying.
+Docker Desktop Kubernetes uses a separate containerd image store. The CD workflow handles this by importing each versioned image into the Kubernetes worker runtime. For a manual local deployment, import the image into the worker runtime or configure a registry reachable from the cluster before deploying.
 
 ### 5. Deploy with Helm
 
@@ -311,7 +313,9 @@ Register the Mac as a self-hosted runner from the repository's **Settings** → 
 
 The deployment workflow's key steps are:
 
-Each deployment uses the CI workflow's commit SHA as the Docker image tag, so every successful deployment creates and runs a distinct image version.
+Each deployment uses the CI workflow's run number as the Docker image tag
+(`1.0.<run number>`), so every successful deployment creates and runs a
+distinct image version.
 
 ```yaml
 - uses: actions/checkout@v5
@@ -325,12 +329,17 @@ Each deployment uses the CI workflow's commit SHA as the Docker image tag, so ev
 
 - name: Build Docker image
   env:
-    IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+    IMAGE_TAG: 1.0.${{ github.event.workflow_run.run_number }}
   run: docker build -t spring-boot-crud:${IMAGE_TAG} .
+
+The CD workflow then creates a temporary privileged loader pod, copies the
+versioned image archive into the Docker Desktop Kubernetes node, and imports it
+into the node's `k8s.io` containerd image store. This is required because the
+runner's Docker image store and Docker Desktop Kubernetes do not share images.
 
 - name: Deploy to Kubernetes with Helm
   env:
-    IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+    IMAGE_TAG: 1.0.${{ github.event.workflow_run.run_number }}
   run: |
     helm upgrade --install spring-boot-crud helm/spring-boot-crud \
       --namespace spring-boot-crud \
