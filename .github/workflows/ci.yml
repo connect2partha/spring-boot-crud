@@ -44,12 +44,20 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr create \
+          if gh pr list \
             --head "${{ github.ref_name }}" \
             --base main \
-            --title "PR: ${{ github.ref_name }}" \
-            --body "Auto-generated PR from branch \`${{ github.ref_name }}\`." \
-            || echo "PR already exists, skipping."
+            --state open \
+            --json number \
+            --jq 'length' | grep -q '^0$'; then
+            gh pr create \
+              --head "${{ github.ref_name }}" \
+              --base main \
+              --title "PR: ${{ github.ref_name }}" \
+              --body "Auto-generated PR from branch \`${{ github.ref_name }}\`."
+          else
+            echo "An open pull request already exists for ${{ github.ref_name }}."
+          fi
 
   robot-tests:
     runs-on: ubuntu-latest
