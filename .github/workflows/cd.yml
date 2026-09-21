@@ -31,12 +31,68 @@ jobs:
 
       - name: Build Docker image
         env:
-          IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+          IMAGE_TAG: 1.0.${{ github.event.workflow_run.run_number }}
         run: docker build -t spring-boot-crud:"${IMAGE_TAG}" .
+
+      - name: Load image into Docker Desktop Kubernetes
+        env:
+          IMAGE_TAG: 1.0.${{ github.event.workflow_run.run_number }}
+        run: |
+          set -euo pipefail
+          loader="spring-boot-crud-image-loader"
+          archive="${RUNNER_TEMP}/spring-boot-crud-${IMAGE_TAG}.tar"
+          app_node="$(kubectl get pod \
+            --namespace spring-boot-crud \
+            --selector app.kubernetes.io/instance=spring-boot-crud \
+            --output jsonpath='{.items[0].spec.nodeName}' 2>/dev/null || true)"
+
+          if [ -z "${app_node}" ]; then
+            app_node="desktop-worker"
+          fi
+
+          cleanup() {
+            kubectl delete pod "${loader}" \
+              --namespace spring-boot-crud \
+              --ignore-not-found \
+              --wait=true
+            rm -f "${archive}"
+          }
+          trap cleanup EXIT
+
+          kubectl apply --namespace spring-boot-crud -f - <<EOF
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: ${loader}
+          spec:
+            nodeName: ${app_node}
+            hostPID: true
+            restartPolicy: Never
+            containers:
+              - name: loader
+                image: alpine:3.20
+                command: ["sh", "-c", "sleep 600"]
+                securityContext:
+                  privileged: true
+                volumeMounts:
+                  - name: host-root
+                    mountPath: /host
+            volumes:
+              - name: host-root
+                hostPath:
+                  path: /
+                  type: Directory
+          EOF
+          kubectl wait --namespace spring-boot-crud --for=condition=Ready pod/"${loader}" --timeout=120s
+          docker save spring-boot-crud:"${IMAGE_TAG}" > "${archive}"
+          kubectl cp "${archive}" spring-boot-crud/"${loader}":/host/tmp/image.tar
+          kubectl exec --namespace spring-boot-crud "${loader}" -- \
+            nsenter -t 1 -m -u -i -n -p -- \
+            /usr/local/bin/ctr -n k8s.io images import /tmp/image.tar
 
       - name: Deploy to Kubernetes with Helm
         env:
-          IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+          IMAGE_TAG: 1.0.${{ github.event.workflow_run.run_number }}
         run: |
           helm upgrade --install spring-boot-crud helm/spring-boot-crud \
             --namespace spring-boot-crud \
