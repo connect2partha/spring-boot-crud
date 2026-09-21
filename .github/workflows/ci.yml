@@ -39,26 +39,6 @@ jobs:
           name: app-jar
           path: target/*.jar
 
-      - name: Create Pull Request
-        if: github.event_name == 'push' && github.ref_name != 'main'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if gh pr list \
-            --head "${{ github.ref_name }}" \
-            --base main \
-            --state open \
-            --json number \
-            --jq 'length' | grep -q '^0$'; then
-            gh pr create \
-              --head "${{ github.ref_name }}" \
-              --base main \
-              --title "PR: ${{ github.ref_name }}" \
-              --body "Auto-generated PR from branch \`${{ github.ref_name }}\`."
-          else
-            echo "An open pull request already exists for ${{ github.ref_name }}."
-          fi
-
   robot-tests:
     runs-on: ubuntu-latest
     needs: build
@@ -103,3 +83,30 @@ jobs:
         with:
           name: robot-results
           path: tests/results/
+
+  create-pull-request:
+    runs-on: ubuntu-latest
+    needs: [build, robot-tests]
+    if: github.event_name == 'push' && github.ref_name != 'main'
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh pr list \
+            --head "${{ github.ref_name }}" \
+            --base main \
+            --state open \
+            --json number \
+            --jq 'length' | grep -q '^0$'; then
+            gh pr create \
+              --head "${{ github.ref_name }}" \
+              --base main \
+              --title "PR: ${{ github.ref_name }}" \
+              --body "Auto-generated PR from branch \`${{ github.ref_name }}\`."
+          else
+            echo "An open pull request already exists for ${{ github.ref_name }}."
+          fi
