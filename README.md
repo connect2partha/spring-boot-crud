@@ -222,6 +222,10 @@ helm upgrade --install spring-boot-crud helm/spring-boot-crud \
   --set image.pullPolicy=Never \
   --wait \
   --timeout 180s
+kubectl rollout restart deployment/spring-boot-crud --namespace spring-boot-crud
+kubectl rollout status deployment/spring-boot-crud \
+  --namespace spring-boot-crud \
+  --timeout=180s
 ```
 
 Always include `--namespace spring-boot-crud`. Omitting it attempts to install into `default` and can cause a NodePort allocation error.
@@ -307,6 +311,8 @@ Register the Mac as a self-hosted runner from the repository's **Settings** → 
 
 The deployment workflow's key steps are:
 
+Each deployment uses the CI workflow's commit SHA as the Docker image tag, so every successful deployment creates and runs a distinct image version.
+
 ```yaml
 - uses: actions/checkout@v5
   with:
@@ -318,14 +324,19 @@ The deployment workflow's key steps are:
   run: gh run download "${{ github.event.workflow_run.id }}" --name app-jar --dir target
 
 - name: Build Docker image
-  run: docker build -t spring-boot-crud:latest .
+  env:
+    IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+  run: docker build -t spring-boot-crud:${IMAGE_TAG} .
 
 - name: Deploy to Kubernetes with Helm
+  env:
+    IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
   run: |
     helm upgrade --install spring-boot-crud helm/spring-boot-crud \
       --namespace spring-boot-crud \
       --create-namespace \
       --set image.repository=spring-boot-crud \
+      --set image.tag=${IMAGE_TAG} \
       --set image.pullPolicy=Never \
       --wait \
       --timeout 180s
