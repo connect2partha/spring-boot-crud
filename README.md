@@ -278,7 +278,7 @@ CI (build → Robot Framework tests) → Deploy (Helm)
 
 The [CI workflow](.github/workflows/ci.yml) runs on pushes to any branch and on pull requests targeting `main`. It builds and tests the application, then uploads the JAR as the `app-jar` artifact. The [CD workflow](.github/workflows/cd.yml) listens for completed CI runs and proceeds only when the `main` workflow succeeds. It checks out the exact commit from that CI run, downloads its artifact, builds the Docker image, and deploys it with Helm.
 
-The self-hosted runner used by the Deploy workflow must have Docker Desktop Kubernetes enabled and access to Docker, Helm, `kubectl`, and GitHub CLI:
+The self-hosted runner used by the CD workflow must have Docker Desktop Kubernetes enabled and access to Docker, Helm, `kubectl`, and GitHub CLI. The workflow installs GitHub CLI with Homebrew if it is not already available:
 
 ```bash
 docker version

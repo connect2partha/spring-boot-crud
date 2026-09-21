@@ -20,6 +20,13 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
 
+      - name: Install GitHub CLI
+        run: |
+          if ! command -v gh >/dev/null 2>&1; then
+            brew install gh
+          fi
+          echo "$(brew --prefix)/bin" >> "$GITHUB_PATH"
+
       - name: Download JAR artifact
         env:
           GH_TOKEN: ${{ github.token }}
