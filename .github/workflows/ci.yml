@@ -91,30 +91,3 @@ jobs:
         with:
           name: robot-results
           path: tests/results/
-
-  deploy:
-    runs-on: self-hosted
-    needs: robot-tests
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Download JAR artifact
-        uses: actions/download-artifact@v5
-        with:
-          name: app-jar
-          path: target
-
-      - name: Build Docker image
-        run: docker build -t spring-boot-crud:latest .
-
-      - name: Deploy to Kubernetes with Helm
-        run: |
-          helm upgrade --install spring-boot-crud helm/spring-boot-crud \
-            --namespace spring-boot-crud \
-            --create-namespace \
-            --set image.repository=spring-boot-crud \
-            --set image.pullPolicy=Never \
-            --wait \
-            --timeout 180s

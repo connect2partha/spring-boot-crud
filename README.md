@@ -270,25 +270,44 @@ http://localhost:8080/swagger-ui.html
 
 ### 7. GitHub Actions deployment
 
-The `deploy` job runs on a self-hosted runner after the build and Robot Framework jobs pass. The runner machine must have Docker Desktop Kubernetes enabled and access to Docker, Helm, and `kubectl`:
+CI and deployment run as separate workflows:
+
+```text
+CI (build → Robot Framework tests) → Deploy (Helm)
+```
+
+The [CI workflow](.github/workflows/ci.yml) runs on pushes to any branch and on pull requests targeting `main`. It builds and tests the application, then uploads the JAR as the `app-jar` artifact. The [CD workflow](.github/workflows/cd.yml) listens for completed CI runs and proceeds only when the `main` workflow succeeds. It checks out the exact commit from that CI run, downloads its artifact, builds the Docker image, and deploys it with Helm.
+
+The self-hosted runner used by the Deploy workflow must have Docker Desktop Kubernetes enabled and access to Docker, Helm, `kubectl`, and GitHub CLI:
 
 ```bash
 docker version
 helm version
+gh --version
 kubectl config use-context docker-desktop
 kubectl get nodes
 ```
 
-Register the Mac as a self-hosted runner from the repository's **Settings** → **Actions** → **Runners** page. The workflow downloads the JAR artifact, builds the Docker image, and runs the same namespaced Helm command shown above. No Minikube setup or raw Kubernetes manifest deployment is required.
+Authenticate GitHub CLI for the runner if needed:
 
-The deployment portion of the workflow is:
+```bash
+gh auth status
+gh auth login
+```
+
+Register the Mac as a self-hosted runner from the repository's **Settings** → **Actions** → **Runners** page. No Minikube setup or raw Kubernetes manifest deployment is required.
+
+The deployment workflow's key steps are:
 
 ```yaml
-- name: Download JAR artifact
-  uses: actions/download-artifact@v5
+- uses: actions/checkout@v5
   with:
-    name: app-jar
-    path: target
+    ref: ${{ github.event.workflow_run.head_sha }}
+
+- name: Download JAR artifact
+  env:
+    GH_TOKEN: ${{ github.token }}
+  run: gh run download "${{ github.event.workflow_run.id }}" --name app-jar --dir target
 
 - name: Build Docker image
   run: docker build -t spring-boot-crud:latest .
