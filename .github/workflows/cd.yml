@@ -30,14 +30,22 @@ jobs:
         run: gh run download "${{ github.event.workflow_run.id }}" --name app-jar --dir target
 
       - name: Build Docker image
-        run: docker build -t spring-boot-crud:latest .
+        env:
+          IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+        run: docker build -t spring-boot-crud:"${IMAGE_TAG}" .
 
       - name: Deploy to Kubernetes with Helm
+        env:
+          IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
         run: |
           helm upgrade --install spring-boot-crud helm/spring-boot-crud \
             --namespace spring-boot-crud \
             --create-namespace \
             --set image.repository=spring-boot-crud \
+            --set image.tag="${IMAGE_TAG}" \
             --set image.pullPolicy=Never \
             --wait \
             --timeout 180s
+          kubectl rollout status deployment/spring-boot-crud \
+            --namespace spring-boot-crud \
+            --timeout=180s
