@@ -295,6 +295,8 @@ gh auth status
 gh auth login
 ```
 
+For automatic pull request creation, go to the repository's **Settings** → **Actions** → **General** → **Workflow permissions** and enable **Allow GitHub Actions to create and approve pull requests**. The workflow already grants the required `contents: write` and `pull-requests: write` permissions.
+
 Register the Mac as a self-hosted runner from the repository's **Settings** → **Actions** → **Runners** page. No Minikube setup or raw Kubernetes manifest deployment is required.
 
 The deployment workflow's key steps are:
