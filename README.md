@@ -311,6 +311,56 @@ For automatic pull request creation, go to the repository's **Settings** → **A
 
 Register the Mac as a self-hosted runner from the repository's **Settings** → **Actions** → **Runners** page. No Minikube setup or raw Kubernetes manifest deployment is required.
 
+#### Set up and run the runner locally
+
+On an Apple Silicon Mac, create a directory outside the repository and download
+the current macOS ARM64 runner package:
+
+```bash
+mkdir -p "$HOME/actions-runner"
+cd "$HOME/actions-runner"
+curl -o actions-runner.tar.gz -L \
+  https://github.com/actions/runner/releases/latest/download/actions-runner-osx-arm64.tar.gz
+tar xzf actions-runner.tar.gz
+```
+
+In the repository's **Settings** → **Actions** → **Runners** → **New
+self-hosted runner** page, choose **macOS** and **ARM64**, then copy the
+registration token into the following command. Replace the URL with the
+repository URL if you are registering a fork:
+
+```bash
+./config.sh \
+  --url https://github.com/connect2partha/spring-boot-crud \
+  --token <REGISTRATION_TOKEN> \
+  --name local-mac \
+  --labels self-hosted,macOS,ARM64 \
+  --work _work
+```
+
+The token is temporary and must not be committed or shared. Start the runner
+in the same terminal:
+
+```bash
+cd "$HOME/actions-runner"
+./run.sh &
+```
+
+Leave `run.sh` running while GitHub Actions jobs are expected. The runner
+should appear as **Idle** in the repository's **Settings** → **Actions** →
+**Runners** page; after a job is assigned, it changes to **Busy**. Press
+`Ctrl+C` to stop it. To start it again later, run:
+
+```bash
+cd "$HOME/actions-runner"
+./run.sh &
+```
+
+The CD workflow is triggered by a successful CI workflow on `main`; it is not
+started by running `run.sh` itself. After the CI workflow completes
+successfully, the CD job is picked up by this local runner and deploys to the
+Docker Desktop Kubernetes cluster.
+
 The deployment workflow's key steps are:
 
 Each deployment uses the CI workflow's run number as the Docker image tag

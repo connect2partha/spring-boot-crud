@@ -18,6 +18,11 @@ spec:
         - name: spring-boot-crud
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "spring-boot-crud.fullname" . }}-config
+            - secretRef:
+                name: {{ include "spring-boot-crud.fullname" . }}-secret
           ports:
             - name: http
               containerPort: {{ .Values.service.targetPort }}
