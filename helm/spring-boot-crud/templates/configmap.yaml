@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "spring-boot-crud.fullname" . }}-config
+  labels:
+    {{- include "spring-boot-crud.labels" . | nindent 4 }}
+data:
+  SPRING_PROFILES_ACTIVE: {{ .Values.config.springProfilesActive | quote }}
+  SERVER_PORT: {{ .Values.config.serverPort | quote }}
+  SPRING_H2_CONSOLE_ENABLED: {{ .Values.config.h2ConsoleEnabled | quote }}

@@ -3,7 +3,10 @@ package edu.codelounge.apps.service;
 import edu.codelounge.apps.entity.Product;
 import edu.codelounge.apps.exception.ResourceNotFoundException;
 import edu.codelounge.apps.repository.ProductRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,10 +14,24 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final Environment environment;
+
+    @PostConstruct
+    void logRuntimeConfiguration() {
+        String datasourcePassword = environment.getProperty("spring.datasource.password");
+        log.info(
+                "Product service started with profile={}, serverPort={}, datasourceUser={}, datasourcePasswordConfigured={}",
+                environment.getProperty("spring.profiles.active", "default"),
+                environment.getProperty("server.port", "8080"),
+                environment.getProperty("spring.datasource.username", "not configured"),
+                datasourcePassword != null && !datasourcePassword.isBlank()
+        );
+    }
 
     @Override
     @Transactional(readOnly = true)
